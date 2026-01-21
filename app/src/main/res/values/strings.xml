@@ -1,0 +1,72 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">EmergencySystem</string>
+
+    <string name="logo_description">App logo</string>
+
+    <string name="login_title">Medical Emergency\nResponse System</string>
+
+    <string name="hint_email">Enter your email or username</string>
+    <string name="hint_password">Enter your password</string>
+
+    <string name="remember_me">Remember Me</string>
+    <string name="forgot_password">Forgot Password</string>
+
+    <string name="login">LOG IN</string>
+    <string name="create_account">Create Account</string>
+    <string name="back_to_login">Already have an account? Log in</string>
+
+
+    <string name="welcome_back">Welcome back,</string>
+    <string name="default_user_name">Vicente Vuelto</string>
+    <string name="default_reg_no">C025-01-0639/2020</string>
+    <string name="emergency_alert">🚨 EMERGENCY ALERT</string>
+    <string name="quick_report_emergency">Quick Report Emergency</string>
+
+    <string name="emergency_type">Emergency Type</string>
+    <string name="severity_level">Severity Level</string>
+    <string name="severity_low">Low</string>
+    <string name="severity_medium">Medium</string>
+    <string name="severity_high">High</string>
+    <string name="severity_critical">Critical</string>
+    <string name="description">Description</string>
+    <string name="description_hint">Describe the emergency situation...</string>
+    <string name="your_location">Your Location</string>
+    <string name="add_photos">Add Photos (Optional)</string>
+    <string name="take_photo">📷 Take Photo</string>
+    <string name="submit_report">Submit Emergency Report</string>
+    <string name="panic_alert">🚨 PANIC ALERT (Immediate Help)</string>
+
+    <string name="back">← Back</string>
+    <string name="share">Share</string>
+    <string name="view_on_map">🗺️ View on Map</string>
+
+    <!-- Titles -->
+    <string name="report_details">📋 Report Details</string>
+    <string name="panic_alert_banner">PANIC ALERT - Immediate Assistance</string>
+    <string name="medical_response">Medical Response</string>
+    <string name="emergency_photos">Emergency Photos</string>
+
+    <!-- Labels -->
+    <string name="description_title">Description</string>
+    <string name="severity">Severity</string>
+    <string name="location">Location</string>
+
+    <!-- Default / placeholder text -->
+    <string name="default_emergency_type">Cardiac Arrest</string>
+    <string name="default_status">⏳ Pending</string>
+    <string name="default_datetime">Dec 15, 2024 10:30 AM</string>
+    <string name="default_description">Student collapsed near library...</string>
+    <string name="default_severity">High</string>
+    <string name="default_location">📍 Getting location...</string>
+    <string name="reported_by">Reported by: %1$s</string>
+    <string name="reg_no">Reg No: %1$s</string>
+    <string name="responder">Responder: %1$s</string>
+    <string name="medical_notes">Medical Notes: %1$s</string>
+    <string name="emergency_videos">🎬 Emergency Videos</string>
+    <!-- Add these strings to your existing strings.xml file -->
+    <string name="add_media">Add Media (Photos/Videos)</string>
+    <string name="upload_photo">📷 Upload Photo</string>
+    <string name="upload_video">🎬 Upload Video</string>
+
+
+</resources>

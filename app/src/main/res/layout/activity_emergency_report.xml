@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f5f5f5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Emergency Type Spinner -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/emergency_type"
+            android:textColor="#333"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <Spinner
+            android:id="@+id/spinnerEmergencyType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/edit_text"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Severity Radio Group -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/severity_level"
+            android:textColor="#333"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupSeverity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <RadioButton
+                android:id="@+id/radioLow"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/severity_low"
+                android:textColor="#4CAF50" />
+
+            <RadioButton
+                android:id="@+id/radioMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/severity_medium"
+                android:textColor="#FF9800"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/radioHigh"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/severity_high"
+                android:textColor="#F44336" />
+
+            <RadioButton
+                android:id="@+id/radioCritical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/severity_critical"
+                android:textColor="#D32F2F" />
+        </RadioGroup>
+
+        <!-- Description -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/description"
+            android:textColor="#333"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <EditText
+            android:id="@+id/edtDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="8dp"
+            android:hint="@string/description_hint"
+            android:inputType="textMultiLine"
+            android:minLines="4"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- MAP SECTION -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/your_location"
+            android:textColor="#333"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Selected Files Info -->
+        <TextView
+            android:id="@+id/txtSelectedFiles"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Selected files: 0"
+            android:textColor="#2196F3"
+            android:textSize="14sp"
+            android:layout_marginBottom="12dp"
+            android:visibility="gone" />
+
+        <!-- Media Upload Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_media"
+            android:textColor="#333"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Upload Buttons Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <Button
+                android:id="@+id/btnUploadPhoto"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/upload_photo"
+                android:backgroundTint="#2196F3"
+                android:textColor="#fff"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnUploadVideo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/upload_video"
+                android:backgroundTint="#9C27B0"
+                android:textColor="#fff" />
+        </LinearLayout>
+
+        <!-- Old Take Photo Button (Optional - can remove if you want) -->
+        <!-- If you want to keep it but change its function, rename the ID -->
+        <Button
+            android:id="@+id/btnCaptureImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/take_photo"
+            android:backgroundTint="#FF9800"
+            android:textColor="#fff"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Image Previews -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📷 Image Previews:"
+            android:textColor="#666"
+            android:textSize="14sp"
+            android:layout_marginBottom="4dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:id="@+id/imgPreview1"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="#e0e0e0"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                android:layout_marginEnd="8dp" />
+
+            <ImageView
+                android:id="@+id/imgPreview2"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="#e0e0e0"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                android:layout_marginEnd="8dp" />
+
+            <ImageView
+                android:id="@+id/imgPreview3"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="#e0e0e0"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Submit Buttons -->
+        <Button
+            android:id="@+id/btnSubmitReport"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/submit_report"
+            android:backgroundTint="#4CAF50"
+            android:textColor="#fff"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btnPanicAlert"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/panic_alert"
+            android:backgroundTint="#F44336"
+            android:textColor="#fff"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+    <!-- Media Uploads Info Layout -->
+    <LinearLayout
+        android:id="@+id/layoutMediaUploads"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="#E8F5E9"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📁 Uploaded Files:"
+            android:textColor="#2E7D32"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/txtUploadedFiles"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No files uploaded"
+            android:textColor="#666"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
