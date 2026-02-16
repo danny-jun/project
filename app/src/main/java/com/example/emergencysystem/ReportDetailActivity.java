@@ -31,7 +31,8 @@ public class ReportDetailActivity extends AppCompatActivity {
     private TextView txtEmergencyType, txtDescription, txtDateTime;
     private TextView txtSeverity, txtStatus, txtLocation, txtResponder, txtNotes;
     private TextView txtUserName, txtUserRegNo;
-    private LinearLayout layoutImages, layoutVideos, layoutPanicAlert;
+    private LinearLayout layoutImages, layoutVideos;
+    private CardView layoutPanicAlert;
     private Button btnViewOnMap;
     private Button btnShareReport;
     private ProgressBar progressBar;
@@ -39,6 +40,7 @@ public class ReportDetailActivity extends AppCompatActivity {
 
     private String reportId;
     private DatabaseReference databaseReference;
+    private EmergencyReport currentReport;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,11 +98,7 @@ public class ReportDetailActivity extends AppCompatActivity {
         // Set click listeners
         btnBack.setOnClickListener(v -> finish());
 
-        btnViewOnMap.setOnClickListener(v -> {
-            // Open Google Maps with the location
-            Toast.makeText(this, "Opening location on map...", Toast.LENGTH_SHORT).show();
-            // You can implement map navigation here
-        });
+        btnViewOnMap.setOnClickListener(v -> openLocationOnMap());
 
         btnShareReport.setOnClickListener(v -> {
             shareReport();
@@ -145,6 +143,9 @@ public class ReportDetailActivity extends AppCompatActivity {
     }
 
     private void displayReportDetails(EmergencyReport report) {
+        // Store current report for map functionality
+        currentReport = report;
+        
         // Emergency Type
         txtEmergencyType.setText(report.getEmergencyType());
 
@@ -168,9 +169,11 @@ public class ReportDetailActivity extends AppCompatActivity {
         setStatusCardColor(cardStatus, report.getStatus());
 
         // Location
-        if (report.getLatitude() != 0 && report.getLongitude() != 0) {
+        if (report.getLocation() != null && !report.getLocation().isEmpty()) {
+            txtLocation.setText("📍 " + report.getLocation());
+        } else if (report.getLatitude() != 0 && report.getLongitude() != 0) {
             String locationText = String.format(Locale.getDefault(),
-                    "📍 Lat: %.6f\nLong: %.6f",
+                    "📍 Lat: %.4f, Long: %.4f",
                     report.getLatitude(), report.getLongitude());
             txtLocation.setText(locationText);
         } else {
@@ -315,6 +318,8 @@ public class ReportDetailActivity extends AppCompatActivity {
         ));
 
         for (String imageUrl : imageUrls) {
+            if (imageUrl == null || imageUrl.trim().isEmpty()) continue;
+            
             ImageView imageView = new ImageView(this);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     300, 300
@@ -324,17 +329,21 @@ public class ReportDetailActivity extends AppCompatActivity {
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             imageView.setBackgroundResource(R.drawable.image_background);
 
-            // Load image using Glide
+            // Load image using Glide with Cloudinary optimization
+            // Cloudinary URLs work directly with Glide
             Glide.with(this)
                     .load(imageUrl)
                     .placeholder(R.drawable.ic_image_placeholder)
                     .error(R.drawable.ic_broken_image)
+                    .thumbnail(0.1f) // Show low-res preview while loading
+                    .centerCrop()
+                    .override(300, 300) // Optimize loading for thumbnail size
                     .into(imageView);
 
-            // Click to view full image
+            // Click to view full image in custom full-screen viewer
             imageView.setOnClickListener(v -> {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(imageUrl));
+                Intent intent = new Intent(ReportDetailActivity.this, FullScreenImageActivity.class);
+                intent.putExtra("IMAGE_URL", imageUrl);
                 startActivity(intent);
             });
 
@@ -371,43 +380,69 @@ public class ReportDetailActivity extends AppCompatActivity {
         ));
 
         for (String videoUrl : videoUrls) {
-            ImageView thumbnailView = new ImageView(this);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    300, 300
-            );
-            params.setMargins(0, 0, 16, 0);
-            thumbnailView.setLayoutParams(params);
-            thumbnailView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            thumbnailView.setBackgroundResource(R.drawable.image_background);
+            if (videoUrl == null || videoUrl.trim().isEmpty()) continue;
+            
+            // Create a frame layout to hold thumbnail and play button
+            android.widget.FrameLayout frameLayout = new android.widget.FrameLayout(this);
+            LinearLayout.LayoutParams frameParams = new LinearLayout.LayoutParams(300, 300);
+            frameParams.setMargins(0, 0, 16, 0);
+            frameLayout.setLayoutParams(frameParams);
+            frameLayout.setBackgroundResource(R.drawable.image_background);
 
-            // Set video icon or thumbnail (you can implement video thumbnail extraction if needed)
-            thumbnailView.setImageResource(R.drawable.ic_video_placeholder);
+            // Thumbnail view
+            ImageView thumbnailView = new ImageView(this);
+            android.widget.FrameLayout.LayoutParams thumbParams = new android.widget.FrameLayout.LayoutParams(
+                    android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.FrameLayout.LayoutParams.MATCH_PARENT
+            );
+            thumbnailView.setLayoutParams(thumbParams);
+            thumbnailView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+            // For Cloudinary videos, generate thumbnail URL by replacing video path with image path
+            // Cloudinary format: https://res.cloudinary.com/[cloud]/video/upload/[path]
+            // Thumbnail format: https://res.cloudinary.com/[cloud]/video/upload/so_0/[path].jpg
+            String thumbnailUrl = videoUrl;
+            if (videoUrl.contains("cloudinary.com")) {
+                // Extract the video path and generate thumbnail
+                thumbnailUrl = videoUrl.replace("/upload/", "/upload/so_0,w_300,h_300,c_fill/") + ".jpg";
+            }
+            
+            // Load video thumbnail using Glide
+            Glide.with(this)
+                    .load(thumbnailUrl)
+                    .placeholder(R.drawable.ic_video_placeholder)
+                    .error(R.drawable.ic_video_placeholder)
+                    .centerCrop()
+                    .override(300, 300)
+                    .into(thumbnailView);
 
             // Add play button overlay
             ImageView playIcon = new ImageView(this);
-            playIcon.setImageResource(R.drawable.ic_play);
-            LinearLayout.LayoutParams playParams = new LinearLayout.LayoutParams(
-                    80, 80
+            android.widget.FrameLayout.LayoutParams playParams = new android.widget.FrameLayout.LayoutParams(
+                    100, 100
             );
+            playParams.gravity = android.view.Gravity.CENTER;
             playIcon.setLayoutParams(playParams);
+            playIcon.setImageResource(R.drawable.ic_play);
+            playIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-            // Create a container for the video thumbnail with play button
-            LinearLayout videoContainer = new LinearLayout(this);
-            videoContainer.setOrientation(LinearLayout.VERTICAL);
-            videoContainer.setLayoutParams(new LinearLayout.LayoutParams(
-                    300, 300
-            ));
-            videoContainer.addView(thumbnailView);
-            videoContainer.addView(playIcon);
+            // Add thumbnail and play button to frame
+            frameLayout.addView(thumbnailView);
+            frameLayout.addView(playIcon);
 
             // Click to play video
-            videoContainer.setOnClickListener(v -> {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.parse(videoUrl), "video/*");
-                startActivity(intent);
+            frameLayout.setOnClickListener(v -> {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.parse(videoUrl), "video/*");
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Toast.makeText(this, "Cannot play video: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             });
 
-            videosContainer.addView(videoContainer);
+            videosContainer.addView(frameLayout);
         }
 
         layoutVideos.addView(videosContainer);
@@ -427,6 +462,43 @@ public class ReportDetailActivity extends AppCompatActivity {
         shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
 
         startActivity(Intent.createChooser(shareIntent, "Share Report"));
+    }
+
+    private void openLocationOnMap() {
+        if (currentReport == null) {
+            Toast.makeText(this, "Location data not available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double latitude = currentReport.getLatitude();
+        double longitude = currentReport.getLongitude();
+
+        if (latitude == 0 && longitude == 0) {
+            Toast.makeText(this, "Location coordinates not available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create a URI for Google Maps
+        String label = currentReport.getLocation() != null ? 
+                      currentReport.getLocation() : "Emergency Location";
+        Uri gmmIntentUri = Uri.parse("geo:" + latitude + "," + longitude + 
+                                    "?q=" + latitude + "," + longitude + 
+                                    "(" + Uri.encode(label) + ")");
+
+        // Create an Intent from gmmIntentUri
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+
+        // Try to start the intent
+        if (mapIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(mapIntent);
+        } else {
+            // If Google Maps is not installed, open in browser
+            Uri browserUri = Uri.parse("https://www.google.com/maps/search/?api=1&query=" + 
+                                      latitude + "," + longitude);
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, browserUri);
+            startActivity(browserIntent);
+        }
     }
 
     @SuppressLint("GestureBackNavigation")

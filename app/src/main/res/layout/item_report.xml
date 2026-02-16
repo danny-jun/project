@@ -12,8 +12,25 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:padding="16dp">
+
+        <!-- Thumbnail preview -->
+        <ImageView
+            android:id="@+id/imgThumbnail"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginEnd="12dp"
+            android:scaleType="centerCrop"
+            android:background="@drawable/image_background"
+            android:visibility="gone"
+            android:contentDescription="Report thumbnail" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
         <!-- Emergency Type & Status -->
         <LinearLayout
@@ -108,6 +125,8 @@
                 android:textColor="#2196F3"
                 android:textSize="12sp"
                 android:gravity="end" />
+        </LinearLayout>
+
         </LinearLayout>
 
     </LinearLayout>

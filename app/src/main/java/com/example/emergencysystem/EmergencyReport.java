@@ -26,6 +26,10 @@ public class EmergencyReport {
     private String completedAt;
     private String responderName;
     private String notes;
+    private String responderNotes;  // For admin responses
+    private String responderId;     // Admin who responded
+    private String responderEmail;  // Admin email
+    private String location;        // Formatted location string
 
     // Required empty constructor for Firebase
     public EmergencyReport() {}
@@ -102,6 +106,18 @@ public class EmergencyReport {
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
 
+    public String getResponderNotes() { return responderNotes; }
+    public void setResponderNotes(String responderNotes) { this.responderNotes = responderNotes; }
+
+    public String getResponderId() { return responderId; }
+    public void setResponderId(String responderId) { this.responderId = responderId; }
+
+    public String getResponderEmail() { return responderEmail; }
+    public void setResponderEmail(String responderEmail) { this.responderEmail = responderEmail; }
+
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+
     // Helper methods
     public String getFormattedDate() {
         try {
@@ -112,6 +128,12 @@ public class EmergencyReport {
         } catch (ParseException e) {
             return timestamp;
         }
+    }
+
+    public long getTimestampMillis() throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        Date date = sdf.parse(timestamp);
+        return date != null ? date.getTime() : 0;
     }
 
     public String getStatusEmoji() {

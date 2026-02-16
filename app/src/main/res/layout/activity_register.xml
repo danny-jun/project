@@ -30,12 +30,106 @@
             android:textColor="#1F2A44"
             android:layout_marginTop="16dp" />
 
+        <!-- Role Selection - Moved to Top -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Your Role:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#1F2A44"
+            android:layout_marginTop="24dp"
+            android:layout_gravity="start" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupRole"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/radioRoleUser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="👤 Students (Report Emergencies)"
+                android:textSize="15sp"
+                android:checked="true"
+                android:padding="8dp" />
+
+            <RadioButton
+                android:id="@+id/radioRoleMedicalOfficer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="👨‍⚕️ Medical Officer"
+                android:textSize="15sp"
+                android:padding="8dp" />
+
+            <RadioButton
+                android:id="@+id/radioRoleStaff"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="👥 Staff"
+                android:textSize="15sp"
+                android:padding="8dp" />
+
+        </RadioGroup>
+
+        <!-- Full Name -->
+        <EditText
+            android:id="@+id/etFullName"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="24dp"
+            android:hint="Full Name"
+            android:background="@drawable/edittext_bg"
+            android:padding="12dp"
+            android:inputType="textPersonName"
+            android:autofillHints="name" />
+
+        <!-- Registration Number (Optional) - For Users Only -->
+        <EditText
+            android:id="@+id/etRegNo"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="16dp"
+            android:hint="Registration No. (Optional)"
+            android:background="@drawable/edittext_bg"
+            android:padding="12dp"
+            android:inputType="text"
+            android:visibility="visible" />
+
+        <!-- Contact Number - Phone for Students, PF for Medical Officer/Staff -->
+        <EditText
+            android:id="@+id/etPFNo"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="16dp"
+            android:hint="Phone Number (e.g., +254712345678)"
+            android:background="@drawable/edittext_bg"
+            android:padding="12dp"
+            android:inputType="phone"
+            android:autofillHints="phone" />
+
+        <!-- Course - For Users Only -->
+        <EditText
+            android:id="@+id/etCourse"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="16dp"
+            android:hint="Course/Department (e.g., Computer Science)"
+            android:background="@drawable/edittext_bg"
+            android:padding="12dp"
+            android:inputType="text"
+            android:autofillHints="name"
+            android:visibility="visible" />
+
         <!-- Email -->
         <EditText
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="16dp"
             android:hint="@string/hint_email"
             android:background="@drawable/edittext_bg"
             android:padding="12dp"

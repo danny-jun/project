@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardEmergency"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="#f5f5f5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Emergency Type -->
+        <TextView
+            android:id="@+id/txtEmergencyType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Emergency Type"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#1f2a44"
+            android:layout_marginBottom="8dp" />
+
+        <!-- User Name -->
+        <TextView
+            android:id="@+id/txtUserName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Reported by: User Name"
+            android:textSize="14sp"
+            android:textColor="#555555"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Description -->
+        <TextView
+            android:id="@+id/txtDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Description"
+            android:textSize="13sp"
+            android:textColor="#666666"
+            android:layout_marginBottom="12dp"
+            android:maxLines="3"
+            android:ellipsize="end" />
+
+        <!-- Status and Severity Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <!-- Status Badge -->
+            <TextView
+                android:id="@+id/txtStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status: Pending"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#ffffff"
+                android:background="#ff9800"
+                android:padding="6dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:layout_marginEnd="8dp" />
+
+            <!-- Severity Badge -->
+            <TextView
+                android:id="@+id/txtSeverity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Severity: Critical"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#c62828"
+                android:background="#ffebee"
+                android:padding="6dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp" />
+        </LinearLayout>
+
+        <!-- Timestamp -->
+        <TextView
+            android:id="@+id/txtTimestamp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Reported: 2026-02-02 10:30:00"
+            android:textSize="12sp"
+            android:textColor="#999999"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Responder Info (optional) -->
+        <TextView
+            android:id="@+id/txtResponder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Responded by: Medical Officer Name"
+            android:textSize="12sp"
+            android:textColor="#2e7d32"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

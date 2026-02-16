@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.example.emergencysystem"
-    compileSdk = 36  // Changed from 36 to 34 (more stable)
+    compileSdk = 36  // Required by androidx.activity:activity:1.12.1
 
     defaultConfig {
         applicationId = "com.example.emergencysystem"
         minSdk = 26
-        targetSdk = 34  // Changed from 36 to 34
+        targetSdk = 35  // Keep targetSdk at 35 for stability
         versionCode = 1
         versionName = "1.0"
 

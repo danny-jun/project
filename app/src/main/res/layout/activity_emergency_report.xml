@@ -107,15 +107,98 @@
             android:padding="12dp"
             android:layout_marginBottom="16dp" />
 
-        <!-- MAP SECTION -->
+        <!-- LOCATION SECTION -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/your_location"
+            android:text="📍 Location"
             android:textColor="#333"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp" />
+
+        <!-- Location Method Toggle -->
+        <RadioGroup
+            android:id="@+id/radioGroupLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <RadioButton
+                android:id="@+id/radioUseGPS"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="📡 Use Current Location"
+                android:textSize="14sp"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/radioManualLocation"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="✏️ Enter Manually"
+                android:textSize="14sp" />
+        </RadioGroup>
+
+        <!-- GPS Location Display -->
+        <LinearLayout
+            android:id="@+id/layoutGPSLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/edittext_bg"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"
+            android:visibility="visible">
+
+            <TextView
+                android:id="@+id/txtCurrentLocation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🔄 Detecting location..."
+                android:textSize="14sp"
+                android:textColor="#666" />
+
+            <Button
+                android:id="@+id/btnRefreshLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="🔄 Refresh Location"
+                android:textSize="12sp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="#4CAF50" />
+        </LinearLayout>
+
+        <!-- Manual Location Input -->
+        <LinearLayout
+            android:id="@+id/layoutManualLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="12dp"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/edtManualLocation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter location (e.g., DKUT Main Gate, Nyeri)"
+                android:inputType="text"
+                android:padding="12dp"
+                android:background="@drawable/edittext_bg"
+                android:minLines="2" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="💡 Tip: Be as specific as possible for faster response"
+                android:textSize="11sp"
+                android:textColor="#999"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
 
         <!-- Selected Files Info -->
         <TextView
@@ -165,16 +248,6 @@
                 android:textColor="#fff" />
         </LinearLayout>
 
-        <!-- Old Take Photo Button (Optional - can remove if you want) -->
-        <!-- If you want to keep it but change its function, rename the ID -->
-        <Button
-            android:id="@+id/btnCaptureImage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/take_photo"
-            android:backgroundTint="#FF9800"
-            android:textColor="#fff"
-            android:layout_marginBottom="8dp" />
 
         <!-- Image Previews -->
         <TextView

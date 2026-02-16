@@ -10,6 +10,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Objects;
 
@@ -51,10 +53,36 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(this, HomeActivity.class));
-                        finish();
+                    if (task.isSuccessful() && mAuth.getCurrentUser() != null) {
+                        String userId = mAuth.getCurrentUser().getUid();
+                        
+                        // Check user role and redirect accordingly
+                        DatabaseReference userRef = FirebaseDatabase.getInstance()
+                                .getReference("users").child(userId);
+                        
+                        userRef.get().addOnSuccessListener(snapshot -> {
+                            if (snapshot.exists()) {
+                                String role = snapshot.child("role").getValue(String.class);
+                                
+                                if ("medicalOfficer".equals(role)) {
+                                    Toast.makeText(this, "Welcome!", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(this, AdminDashboardActivity.class));
+                                } else {
+                                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(this, HomeActivity.class));
+                                }
+                                finish();
+                            } else {
+                                // No profile found, default to user home
+                                Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(this, HomeActivity.class));
+                                finish();
+                            }
+                        }).addOnFailureListener(e -> {
+                            Toast.makeText(this, "Error checking role: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(this, HomeActivity.class));
+                            finish();
+                        });
                     } else {
                         Toast.makeText(this,
                                 Objects.requireNonNull(task.getException()).getMessage(),

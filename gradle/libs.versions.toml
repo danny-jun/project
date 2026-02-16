@@ -1,6 +1,6 @@
 [versions]
 # Android / Gradle
-agp = "8.13.2"
+agp = "8.9.2"
 
 # Testing
 cloudinaryAndroid = "3.1.2"

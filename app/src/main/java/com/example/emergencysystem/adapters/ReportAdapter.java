@@ -4,11 +4,13 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.emergencysystem.EmergencyReport;
 import com.example.emergencysystem.R;
 
@@ -66,6 +68,9 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ReportView
         // Handle media indicators (simple text version)
         updateMediaSummary(holder, report);
 
+        // Load thumbnail if available
+        loadThumbnail(holder, report);
+
         if (report.isPanicAlert()) {
             holder.cardView.setCardBackgroundColor(0x30F44336); // Light red
         } else {
@@ -96,6 +101,36 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ReportView
             holder.txtMediaSummary.setVisibility(View.VISIBLE);
         } else {
             holder.txtMediaSummary.setVisibility(View.GONE);
+        }
+    }
+
+    private void loadThumbnail(ReportViewHolder holder, EmergencyReport report) {
+        // Try to load first image or video thumbnail
+        String thumbnailUrl = null;
+        
+        if (report.getImageUrls() != null && !report.getImageUrls().isEmpty()) {
+            thumbnailUrl = report.getImageUrls().get(0);
+        } else if (report.getVideoUrls() != null && !report.getVideoUrls().isEmpty()) {
+            String videoUrl = report.getVideoUrls().get(0);
+            // Generate Cloudinary video thumbnail
+            if (videoUrl.contains("cloudinary.com")) {
+                thumbnailUrl = videoUrl.replace("/upload/", "/upload/so_0,w_160,h_160,c_fill/") + ".jpg";
+            } else {
+                thumbnailUrl = videoUrl;
+            }
+        }
+
+        if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
+            holder.imgThumbnail.setVisibility(View.VISIBLE);
+            Glide.with(context)
+                    .load(thumbnailUrl)
+                    .placeholder(R.drawable.ic_image_placeholder)
+                    .error(R.drawable.ic_broken_image)
+                    .centerCrop()
+                    .override(160, 160)
+                    .into(holder.imgThumbnail);
+        } else {
+            holder.imgThumbnail.setVisibility(View.GONE);
         }
     }
 
@@ -133,11 +168,13 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ReportView
 
     static class ReportViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;
+        ImageView imgThumbnail;
         TextView txtEmergencyType, txtDateTime, txtStatus, txtSeverity, txtMediaSummary;
 
         ReportViewHolder(@NonNull View itemView) {
             super(itemView);
             cardView = itemView.findViewById(R.id.cardReport);
+            imgThumbnail = itemView.findViewById(R.id.imgThumbnail);
             txtEmergencyType = itemView.findViewById(R.id.txtEmergencyType);
             txtDateTime = itemView.findViewById(R.id.txtDateTime);
             txtStatus = itemView.findViewById(R.id.txtStatus);
