@@ -86,6 +86,11 @@ public class AllEmergenciesActivity extends AppCompatActivity {
                             EmergencyReport report = reportSnapshot.getValue(EmergencyReport.class);
                             if (report != null) {
                                 report.setId(reportSnapshot.getKey());
+                                
+                                // Auto-categorize severity based on emergency type
+                                String categorizedSeverity = report.getAutoCategorizedSeverity();
+                                report.setSeverity(categorizedSeverity);
+                                
                                 emergenciesList.add(0, report); // Add to beginning (newest first)
                             }
                         } catch (Exception e) {

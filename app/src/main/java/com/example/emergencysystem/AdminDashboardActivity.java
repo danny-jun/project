@@ -177,6 +177,11 @@ public class AdminDashboardActivity extends AppCompatActivity {
                         EmergencyReport report = snapshot.getValue(EmergencyReport.class);
                         if (report != null) {
                             report.setId(snapshot.getKey());
+                            
+                            // Auto-categorize severity based on emergency type
+                            String categorizedSeverity = report.getAutoCategorizedSeverity();
+                            report.setSeverity(categorizedSeverity);
+                            
                             totalReports++;
 
                             // Status counts
@@ -194,11 +199,10 @@ public class AdminDashboardActivity extends AppCompatActivity {
                                     break;
                             }
 
-                            // Severity counts
-                            String severity = report.getSeverity() != null ? report.getSeverity() : "";
-                            if ("Critical".equalsIgnoreCase(severity)) {
+                            // Severity counts using auto-categorized severity
+                            if ("Critical".equalsIgnoreCase(categorizedSeverity)) {
                                 criticalCount++;
-                            } else if ("High".equalsIgnoreCase(severity)) {
+                            } else if ("High".equalsIgnoreCase(categorizedSeverity)) {
                                 highCount++;
                             }
 
@@ -306,24 +310,30 @@ public class AdminDashboardActivity extends AppCompatActivity {
     }
 
     /**
-     * Get priority value for sorting reports
-     * Higher value = higher priority
-     * Panic alerts get highest priority regardless of severity
+     * Get priority value for sorting reports in priority queue
+     * Higher value = higher priority (should be processed first)
+     * 
+     * Priority order:
+     * 1. Critical + Panic (500+)
+     * 2. Critical (400)
+     * 3. High + Panic (300+)
+     * 4. High (300)
+     * 5. Medium (200)
+     * 6. Low (100)
      */
     private int getPriorityValue(String severity, boolean isPanicAlert) {
-        if (isPanicAlert) {
-            return 500; // Panic alerts have highest priority
+        if (severity == null || severity.isEmpty()) {
+            severity = "Medium"; // Default to medium if null
         }
 
-        if (severity == null) {
-            return 200; // Default medium priority
-        }
+        // Panic alerts get a boost to priority
+        int panicBoost = isPanicAlert ? 50 : 0;
 
         switch (severity.toLowerCase()) {
             case "critical":
-                return 400;
+                return 400 + panicBoost;
             case "high":
-                return 300;
+                return 300 + panicBoost;
             case "medium":
                 return 200;
             case "low":

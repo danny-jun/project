@@ -178,4 +178,63 @@ public class EmergencyReport {
     public boolean hasImages() {
         return imageUrls != null && !imageUrls.isEmpty();
     }
+
+    /**
+     * Auto-categorize severity level based on emergency type
+     * Returns: "Critical", "High", "Medium", or "Low"
+     */
+    public String getAutoCategorizedSeverity() {
+        if (emergencyType == null || emergencyType.isEmpty()) {
+            return "Medium"; // Default to medium if type is unknown
+        }
+
+        String type = emergencyType.toLowerCase();
+
+        // CRITICAL - Life-threatening emergencies
+        if (type.contains("cardiac") || type.contains("cardiac arrest") || 
+            type.contains("heart attack") || type.contains("stroke") ||
+            type.contains("severe trauma") || type.contains("poisoning") ||
+            type.contains("drowning") || type.contains("choking") ||
+            type.contains("fire") || type.contains("burn") ||
+            type.contains("loss of consciousness") || type.contains("unconscious") ||
+            type.contains("severe shock") || type.contains("anaphylaxis") ||
+            type.contains("internal bleeding") || type.contains("severe hemorrhage")) {
+            return "Critical";
+        }
+
+        // HIGH - Serious but not immediately life-threatening
+        if (type.contains("difficulty breathing") || type.contains("breathlessness") ||
+            type.contains("chest pain") || type.contains("severe pain") ||
+            type.contains("severe bleeding") || type.contains("severe injury") ||
+            type.contains("severe allergic") || type.contains("severe infection") ||
+            type.contains("fracture") || type.contains("head injury") ||
+            type.contains("spinal injury") || type.contains("severe asthma") ||
+            type.contains("fainting") || type.contains("seizure") ||
+            type.contains("serious wound") || type.contains("deep cut")) {
+            return "High";
+        }
+
+        // MEDIUM - Moderate issues requiring attention
+        if (type.contains("moderate") || type.contains("injury") ||
+            type.contains("fall") || type.contains("sprain") ||
+            type.contains("strain") || type.contains("fever") ||
+            type.contains("infection") || type.contains("diarrhea") ||
+            type.contains("vomiting") || type.contains("headache") ||
+            type.contains("abdominal") || type.contains("back pain") ||
+            type.contains("muscle pain") || type.contains("minor burn") ||
+            type.contains("minor cut") || type.contains("nosebleed")) {
+            return "Medium";
+        }
+
+        // LOW - Minor issues
+        if (type.contains("minor") || type.contains("minor injury") ||
+            type.contains("minor cut") || type.contains("bruise") ||
+            type.contains("scrape") || type.contains("mild") ||
+            type.contains("first aid") || type.contains("small wound")) {
+            return "Low";
+        }
+
+        // Default to medium if type doesn't match any category
+        return "Medium";
+    }
 }

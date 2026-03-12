@@ -61,7 +61,12 @@ public class ReportHistoryActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        loadUserReports();
+        try {
+            loadUserReports();
+        } catch (Exception e) {
+            Log.e(TAG, "Error in onStart: " + e.getMessage(), e);
+            Toast.makeText(this, "Error loading reports: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void initUI() {
@@ -118,101 +123,112 @@ public class ReportHistoryActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         txtNoReports.setVisibility(View.GONE);
 
-        databaseReference.orderByChild("userId").equalTo(userId)
-                .addValueEventListener(new ValueEventListener() {
-                    @SuppressLint("NotifyDataSetChanged")
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        reportList.clear();
+        // Read all reports and filter client-side to avoid index requirements
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                reportList.clear();
 
-                        Log.d(TAG, "Snapshot exists: " + dataSnapshot.exists());
-                        Log.d(TAG, "Children count: " + dataSnapshot.getChildrenCount());
+                Log.d(TAG, "Snapshot exists: " + dataSnapshot.exists());
+                Log.d(TAG, "Children count: " + dataSnapshot.getChildrenCount());
 
-                        if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
-                            int count = 0;
-                            int reportsWithImages = 0;
-                            int reportsWithVideos = 0;
+                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                    int count = 0;
+                    int reportsWithImages = 0;
+                    int reportsWithVideos = 0;
 
-                            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                                try {
-                                    EmergencyReport report = snapshot.getValue(EmergencyReport.class);
-                                    if (report != null) {
-                                        report.setId(snapshot.getKey());
-
-                                        // Log media information for debugging
-                                        if (report.getImageUrls() != null && !report.getImageUrls().isEmpty()) {
-                                            reportsWithImages++;
-                                            Log.d(TAG, "Report #" + (count+1) + " has " +
-                                                    report.getImageUrls().size() + " image(s)");
-                                        }
-
-                                        if (report.getVideoUrls() != null && !report.getVideoUrls().isEmpty()) {
-                                            reportsWithVideos++;
-                                            Log.d(TAG, "Report #" + (count+1) + " has " +
-                                                    report.getVideoUrls().size() + " video(s)");
-                                        }
-
-                                        reportList.add(report);
-                                        count++;
-                                        Log.d(TAG, "Found report #" + count + ": " +
-                                                report.getEmergencyType() + " at " + report.getTimestamp());
-                                    }
-                                } catch (Exception e) {
-                                    Log.e(TAG, "Error parsing report: " + e.getMessage());
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        try {
+                            EmergencyReport report = snapshot.getValue(EmergencyReport.class);
+                            if (report != null) {
+                                report.setId(snapshot.getKey());
+                                
+                                // Only add reports from current user
+                                if (!userId.equals(report.getUserId())) {
+                                    continue;
                                 }
+                                
+                                // Auto-categorize severity based on emergency type
+                                String categorizedSeverity = report.getAutoCategorizedSeverity();
+                                report.setSeverity(categorizedSeverity);
+
+                                // Log media information for debugging
+                                if (report.getImageUrls() != null && !report.getImageUrls().isEmpty()) {
+                                    reportsWithImages++;
+                                    Log.d(TAG, "Report #" + (count+1) + " has " +
+                                            report.getImageUrls().size() + " image(s)");
+                                }
+
+                                if (report.getVideoUrls() != null && !report.getVideoUrls().isEmpty()) {
+                                    reportsWithVideos++;
+                                    Log.d(TAG, "Report #" + (count+1) + " has " +
+                                            report.getVideoUrls().size() + " video(s)");
+                                }
+
+                                reportList.add(report);
+                                count++;
+                                Log.d(TAG, "Found report #" + count + ": " +
+                                        report.getEmergencyType() + " at " + report.getTimestamp());
                             }
-
-                            // Sort by date (newest first)
-                            sortReportsByDate();
-
-                            // Update UI
-                            reportAdapter.notifyDataSetChanged();
-                            recyclerView.setVisibility(View.VISIBLE);
-                            txtNoReports.setVisibility(View.GONE);
-
-                            // Update stats including media info
-                            updateReportStats(reportsWithImages, reportsWithVideos);
-
-                            Toast.makeText(ReportHistoryActivity.this,
-                                    "Found " + reportList.size() + " emergency reports",
-                                    Toast.LENGTH_SHORT).show();
-
-                        } else {
-                            // No reports found
-                            recyclerView.setVisibility(View.GONE);
-                            txtNoReports.setVisibility(View.VISIBLE);
-                            txtNoReports.setText("📭 No emergency reports found\n\n" +
-                                    "Submit your first report from the home screen!");
-                            txtStats.setText("No reports yet");
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error parsing report: " + e.getMessage(), e);
                         }
-
-                        progressBar.setVisibility(View.GONE);
                     }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        progressBar.setVisibility(View.GONE);
+                    // Sort by date (newest first)
+                    sortReportsByDate();
 
-                        Log.e(TAG, "Database error: " + databaseError.getMessage() +
-                                " | Code: " + databaseError.getCode());
+                    // Update UI
+                    reportAdapter.notifyDataSetChanged();
+                    recyclerView.setVisibility(View.VISIBLE);
+                    txtNoReports.setVisibility(View.GONE);
 
-                        String errorMsg;
-                        switch (databaseError.getCode()) {
-                            case DatabaseError.PERMISSION_DENIED:
-                                errorMsg = "Permission denied. Check Firebase security rules.";
-                                break;
-                            case DatabaseError.DISCONNECTED:
-                                errorMsg = "Network disconnected. Check internet connection.";
-                                break;
-                            default:
-                                errorMsg = "Error: " + databaseError.getMessage();
-                        }
+                    // Update stats including media info
+                    updateReportStats(reportsWithImages, reportsWithVideos);
 
-                        Toast.makeText(ReportHistoryActivity.this, errorMsg, Toast.LENGTH_LONG).show();
-                        txtNoReports.setText("⚠️ " + errorMsg);
-                        txtNoReports.setVisibility(View.VISIBLE);
-                    }
-                });
+                    Toast.makeText(ReportHistoryActivity.this,
+                            "Found " + reportList.size() + " emergency reports",
+                            Toast.LENGTH_SHORT).show();
+
+                } else {
+                    // No reports found
+                    recyclerView.setVisibility(View.GONE);
+                    txtNoReports.setVisibility(View.VISIBLE);
+                    txtNoReports.setText("📭 No emergency reports found\n\n" +
+                            "Submit your first report from the home screen!");
+                    txtStats.setText("No reports yet");
+                }
+
+                progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                progressBar.setVisibility(View.GONE);
+
+                Log.e(TAG, "Database error: " + databaseError.getMessage() +
+                        " | Code: " + databaseError.getCode(), databaseError.toException());
+
+                String errorMsg;
+                switch (databaseError.getCode()) {
+                    case DatabaseError.PERMISSION_DENIED:
+                        errorMsg = "Permission denied. Check Firebase security rules.";
+                        break;
+                    case DatabaseError.DISCONNECTED:
+                        errorMsg = "Network disconnected. Check internet connection.";
+                        break;
+                    default:
+                        errorMsg = "Error: " + databaseError.getMessage();
+                }
+
+                Log.e(TAG, "Full error: " + errorMsg);
+                Toast.makeText(ReportHistoryActivity.this, errorMsg, Toast.LENGTH_LONG).show();
+                txtNoReports.setText("⚠️ " + errorMsg);
+                txtNoReports.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            }
+        });
     }
 
     private void sortReportsByDate() {

@@ -55,10 +55,10 @@ public class EmergencyReportActivity extends AppCompatActivity {
 
     private EditText edtDescription, edtManualLocation;
     private Spinner spinnerEmergencyType;
-    private RadioGroup radioGroupSeverity, radioGroupLocation;
+    private RadioGroup radioGroupLocation;
     private ImageView imgPreview1, imgPreview2, imgPreview3;
     private TextView txtSelectedFiles, txtCurrentLocation;
-    private Button btnSubmitReport, btnPanicAlert, btnRefreshLocation;
+    private Button btnSubmitReport, btnRefreshLocation;
     private LinearLayout layoutGPSLocation, layoutManualLocation;
 
     private FusedLocationProviderClient fusedLocationClient;
@@ -105,7 +105,6 @@ public class EmergencyReportActivity extends AppCompatActivity {
             edtDescription = findViewById(R.id.edtDescription);
             edtManualLocation = findViewById(R.id.edtManualLocation);
             spinnerEmergencyType = findViewById(R.id.spinnerEmergencyType);
-            radioGroupSeverity = findViewById(R.id.radioGroupSeverity);
             radioGroupLocation = findViewById(R.id.radioGroupLocation);
 
             imgPreview1 = findViewById(R.id.imgPreview1);
@@ -121,19 +120,12 @@ public class EmergencyReportActivity extends AppCompatActivity {
             Button btnUploadPhoto = findViewById(R.id.btnUploadPhoto);
             Button btnUploadVideo = findViewById(R.id.btnUploadVideo);
             btnSubmitReport = findViewById(R.id.btnSubmitReport);
-            btnPanicAlert = findViewById(R.id.btnPanicAlert);
             btnRefreshLocation = findViewById(R.id.btnRefreshLocation);
 
             // Check if UI elements were found
             if (btnUploadPhoto == null) Log.e(TAG, "btnUploadPhoto not found");
             if (btnUploadVideo == null) Log.e(TAG, "btnUploadVideo not found");
             if (btnSubmitReport == null) Log.e(TAG, "btnSubmitReport not found");
-            if (btnPanicAlert == null) Log.e(TAG, "btnPanicAlert not found");
-
-            // Set default severity to Medium
-            if (radioGroupSeverity != null) {
-                radioGroupSeverity.check(R.id.radioMedium);
-            }
 
             // Set click listeners with error handling
             if (btnUploadPhoto != null) {
@@ -169,16 +161,7 @@ public class EmergencyReportActivity extends AppCompatActivity {
                 });
             }
 
-            if (btnPanicAlert != null) {
-                btnPanicAlert.setOnClickListener(v -> {
-                    try {
-                        submitReport(true);
-                    } catch (Exception e) {
-                        Log.e(TAG, "Panic alert error", e);
-                        Toast.makeText(this, "Error sending panic alert", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
+
 
             if (btnRefreshLocation != null) {
                 btnRefreshLocation.setOnClickListener(v -> {
@@ -486,9 +469,8 @@ public class EmergencyReportActivity extends AppCompatActivity {
             }
         }
 
-        // Disable buttons to prevent multiple submissions
+        // Disable button to prevent multiple submissions
         if (btnSubmitReport != null) btnSubmitReport.setEnabled(false);
-        if (btnPanicAlert != null) btnPanicAlert.setEnabled(false);
 
         Map<String, Object> report = new HashMap<>();
         report.put("id", ""); // Will be set when saving
@@ -504,16 +486,8 @@ public class EmergencyReportActivity extends AppCompatActivity {
         report.put("status", "pending");
         report.put("panicAlert", isPanicAlert); // Changed from "panic" to "panicAlert"
 
-        // Set severity
-        String severity = "Medium";
-        if (radioGroupSeverity != null) {
-            int selectedId = radioGroupSeverity.getCheckedRadioButtonId();
-            if (selectedId == R.id.radioLow) severity = "Low";
-            else if (selectedId == R.id.radioHigh) severity = "High";
-            else if (selectedId == R.id.radioCritical) severity = "Critical";
-        }
-        if (isPanicAlert) severity = "Critical";
-        report.put("severity", severity);
+        // Severity will be auto-categorized on the backend based on emergency type
+        report.put("severity", "Medium"); // Default value, will be overridden by backend
 
         // Initialize empty arrays for media
         report.put("imageUrls", new ArrayList<String>());
@@ -630,9 +604,8 @@ public class EmergencyReportActivity extends AppCompatActivity {
         String reportId = databaseReference.push().getKey();
         if (reportId == null) {
             Toast.makeText(this, "Error generating report ID", Toast.LENGTH_SHORT).show();
-            // Re-enable buttons
+            // Re-enable button
             if (btnSubmitReport != null) btnSubmitReport.setEnabled(true);
-            if (btnPanicAlert != null) btnPanicAlert.setEnabled(true);
             return;
         }
 
@@ -652,9 +625,8 @@ public class EmergencyReportActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to save report", e);
                     Toast.makeText(this, "Failed to submit report: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    // Re-enable buttons
+                    // Re-enable button
                     if (btnSubmitReport != null) btnSubmitReport.setEnabled(true);
-                    if (btnPanicAlert != null) btnPanicAlert.setEnabled(true);
                 });
     }
 

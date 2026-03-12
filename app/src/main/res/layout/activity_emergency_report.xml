@@ -35,56 +35,6 @@
             android:padding="12dp"
             android:layout_marginBottom="16dp" />
 
-        <!-- Severity Radio Group -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/severity_level"
-            android:textColor="#333"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
-
-        <RadioGroup
-            android:id="@+id/radioGroupSeverity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
-
-            <RadioButton
-                android:id="@+id/radioLow"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/severity_low"
-                android:textColor="#4CAF50" />
-
-            <RadioButton
-                android:id="@+id/radioMedium"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/severity_medium"
-                android:textColor="#FF9800"
-                android:checked="true" />
-
-            <RadioButton
-                android:id="@+id/radioHigh"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/severity_high"
-                android:textColor="#F44336" />
-
-            <RadioButton
-                android:id="@+id/radioCritical"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/severity_critical"
-                android:textColor="#D32F2F" />
-        </RadioGroup>
 
         <!-- Description -->
         <TextView
@@ -302,16 +252,6 @@
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp" />
-
-        <Button
-            android:id="@+id/btnPanicAlert"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/panic_alert"
-            android:backgroundTint="#F44336"
-            android:textColor="#fff"
-            android:textSize="16sp"
-            android:textStyle="bold" />
 
     </LinearLayout>
     <!-- Media Uploads Info Layout -->

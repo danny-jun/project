@@ -29,7 +29,7 @@ import java.util.Locale;
 public class ReportDetailActivity extends AppCompatActivity {
 
     private TextView txtEmergencyType, txtDescription, txtDateTime;
-    private TextView txtSeverity, txtStatus, txtLocation, txtResponder, txtNotes;
+    private TextView txtStatus, txtLocation, txtResponder, txtNotes;
     private TextView txtUserName, txtUserRegNo;
     private LinearLayout layoutImages, layoutVideos;
     private CardView layoutPanicAlert;
@@ -45,64 +45,81 @@ public class ReportDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_report_detail);
+        try {
+            setContentView(R.layout.activity_report_detail);
 
-        // Get report ID from intent
-        Intent intent = getIntent();
-        if (intent != null && intent.hasExtra("REPORT_ID")) {
-            reportId = intent.getStringExtra("REPORT_ID");
-        } else {
-            Toast.makeText(this, "No report selected", Toast.LENGTH_SHORT).show();
+            // Get report ID from intent
+            Intent intent = getIntent();
+            if (intent != null && intent.hasExtra("REPORT_ID")) {
+                reportId = intent.getStringExtra("REPORT_ID");
+            } else {
+                Toast.makeText(this, "No report selected", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+
+            // Initialize Firebase
+            databaseReference = FirebaseDatabase.getInstance().getReference("emergency_reports");
+
+            // Initialize UI components
+            initUI();
+
+            // Load report details
+            loadReportDetails();
+        } catch (Exception e) {
+            android.util.Log.e("ReportDetailActivity", "Error in onCreate", e);
+            Toast.makeText(this, "Error opening report: " + e.getMessage(), Toast.LENGTH_LONG).show();
             finish();
-            return;
         }
-
-        // Initialize Firebase
-        databaseReference = FirebaseDatabase.getInstance().getReference("emergency_reports");
-
-        // Initialize UI components
-        initUI();
-
-        // Load report details
-        loadReportDetails();
     }
 
     private void initUI() {
-        // TextViews
-        txtEmergencyType = findViewById(R.id.txtEmergencyType);
-        txtDescription = findViewById(R.id.txtDescription);
-        txtDateTime = findViewById(R.id.txtDateTime);
-        txtSeverity = findViewById(R.id.txtSeverity);
-        txtStatus = findViewById(R.id.txtStatus);
-        txtLocation = findViewById(R.id.txtLocation);
-        txtResponder = findViewById(R.id.txtResponder);
-        txtNotes = findViewById(R.id.txtNotes);
-        txtUserName = findViewById(R.id.txtUserName);
-        txtUserRegNo = findViewById(R.id.txtUserRegNo);
+        try {
+            // TextViews
+            txtEmergencyType = findViewById(R.id.txtEmergencyType);
+            txtDescription = findViewById(R.id.txtDescription);
+            txtDateTime = findViewById(R.id.txtDateTime);
+            txtStatus = findViewById(R.id.txtStatus);
+            txtLocation = findViewById(R.id.txtLocation);
+            txtResponder = findViewById(R.id.txtResponder);
+            txtNotes = findViewById(R.id.txtNotes);
+            txtUserName = findViewById(R.id.txtUserName);
+            txtUserRegNo = findViewById(R.id.txtUserRegNo);
 
-        // Layouts
-        layoutImages = findViewById(R.id.layoutImages);
-        layoutVideos = findViewById(R.id.layoutVideos);
-        layoutPanicAlert = findViewById(R.id.layoutPanicAlert);
+            // Layouts
+            layoutImages = findViewById(R.id.layoutImages);
+            layoutVideos = findViewById(R.id.layoutVideos);
+            layoutPanicAlert = findViewById(R.id.layoutPanicAlert);
 
-        // Buttons
-        Button btnBack = findViewById(R.id.btnBack);
-        btnViewOnMap = findViewById(R.id.btnViewOnMap);
-        btnShareReport = findViewById(R.id.btnShareReport);
+            // Buttons
+            Button btnBack = findViewById(R.id.btnBack);
+            btnViewOnMap = findViewById(R.id.btnViewOnMap);
+            btnShareReport = findViewById(R.id.btnShareReport);
 
-        // Progress and Cards
-        progressBar = findViewById(R.id.progressBar);
-        cardStatus = findViewById(R.id.cardStatus);
-        cardLocation = findViewById(R.id.cardLocation);
+            // Progress and Cards
+            progressBar = findViewById(R.id.progressBar);
+            cardStatus = findViewById(R.id.cardStatus);
+            cardLocation = findViewById(R.id.cardLocation);
 
-        // Set click listeners
-        btnBack.setOnClickListener(v -> finish());
+            // Set click listeners
+            if (btnBack != null) {
+                btnBack.setOnClickListener(v -> finish());
+            }
 
-        btnViewOnMap.setOnClickListener(v -> openLocationOnMap());
+            if (btnViewOnMap != null) {
+                btnViewOnMap.setOnClickListener(v -> openLocationOnMap());
+            }
 
-        btnShareReport.setOnClickListener(v -> {
-            shareReport();
-        });
+            if (btnShareReport != null) {
+                btnShareReport.setOnClickListener(v -> {
+                    shareReport();
+                });
+            }
+        } catch (Exception e) {
+            android.util.Log.e("ReportDetailActivity", "Error in initUI", e);
+            Toast.makeText(this, "Error initializing UI: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
 
     private void loadReportDetails() {
@@ -123,6 +140,11 @@ public class ReportDetailActivity extends AppCompatActivity {
                     EmergencyReport report = dataSnapshot.getValue(EmergencyReport.class);
                     if (report != null) {
                         report.setId(reportId);
+                        
+                        // Auto-categorize severity based on emergency type
+                        String categorizedSeverity = report.getAutoCategorizedSeverity();
+                        report.setSeverity(categorizedSeverity);
+                        
                         displayReportDetails(report);
                     }
                 } else {
@@ -143,88 +165,117 @@ public class ReportDetailActivity extends AppCompatActivity {
     }
 
     private void displayReportDetails(EmergencyReport report) {
-        // Store current report for map functionality
-        currentReport = report;
-        
-        // Emergency Type
-        txtEmergencyType.setText(report.getEmergencyType());
-
-        // Description
-        if (report.getDescription() != null && !report.getDescription().isEmpty()) {
-            txtDescription.setText(report.getDescription());
-            txtDescription.setVisibility(View.VISIBLE);
-        } else {
-            txtDescription.setVisibility(View.GONE);
-        }
-
-        // Date & Time
-        txtDateTime.setText(getFormattedDateTime(report.getTimestamp()));
-
-        // Severity
-        txtSeverity.setText(report.getSeverity());
-        setSeverityColor(txtSeverity, report.getSeverity());
-
-        // Status
-        txtStatus.setText(getStatusText(report.getStatus()));
-        setStatusCardColor(cardStatus, report.getStatus());
-
-        // Location
-        if (report.getLocation() != null && !report.getLocation().isEmpty()) {
-            txtLocation.setText("📍 " + report.getLocation());
-        } else if (report.getLatitude() != 0 && report.getLongitude() != 0) {
-            String locationText = String.format(Locale.getDefault(),
-                    "📍 Lat: %.4f, Long: %.4f",
-                    report.getLatitude(), report.getLongitude());
-            txtLocation.setText(locationText);
-        } else {
-            txtLocation.setText("📍 Location not available");
-        }
-
-        // User Info
-        if (report.getUserName() != null) {
-            txtUserName.setText("Reported by: " + report.getUserName());
-        }
-        if (report.getUserRegNo() != null) {
-            txtUserRegNo.setText("Reg No: " + report.getUserRegNo());
-        }
-
-        // Responder Info
-        if (report.getResponderName() != null && !report.getResponderName().isEmpty()) {
-            txtResponder.setText("Responder: " + report.getResponderName());
-            txtResponder.setVisibility(View.VISIBLE);
-        } else {
-            txtResponder.setVisibility(View.GONE);
-        }
-
-        // Notes
-        if (report.getNotes() != null && !report.getNotes().isEmpty()) {
-            txtNotes.setText("Medical Notes: " + report.getNotes());
-            txtNotes.setVisibility(View.VISIBLE);
-        } else {
-            txtNotes.setVisibility(View.GONE);
-        }
-
-        // Panic Alert
-        if (report.isPanicAlert()) {
-            layoutPanicAlert.setVisibility(View.VISIBLE);
-        } else {
-            layoutPanicAlert.setVisibility(View.GONE);
-        }
-
-        // Images
-        if (report.getImageUrls() != null && !report.getImageUrls().isEmpty()) {
-            displayImages(report.getImageUrls());
-        } else {
-            layoutImages.setVisibility(View.GONE);
-        }
-
-        // Videos
-        if (report.getVideoUrls() != null && !report.getVideoUrls().isEmpty()) {
-            displayVideos(report.getVideoUrls());
-        } else {
-            if (layoutVideos != null) {
-                layoutVideos.setVisibility(View.GONE);
+        try {
+            // Store current report for map functionality
+            currentReport = report;
+            
+            // Emergency Type
+            if (txtEmergencyType != null) {
+                txtEmergencyType.setText(report.getEmergencyType());
             }
+
+            // Description
+            if (report.getDescription() != null && !report.getDescription().isEmpty()) {
+                if (txtDescription != null) {
+                    txtDescription.setText(report.getDescription());
+                    txtDescription.setVisibility(View.VISIBLE);
+                }
+            } else {
+                if (txtDescription != null) {
+                    txtDescription.setVisibility(View.GONE);
+                }
+            }
+
+            // Date & Time
+            if (txtDateTime != null) {
+                txtDateTime.setText(getFormattedDateTime(report.getTimestamp()));
+            }
+
+            // Severity is now auto-categorized on backend and not shown to students
+            
+            // Status
+            if (txtStatus != null) {
+                txtStatus.setText(getStatusText(report.getStatus()));
+            }
+            if (cardStatus != null) {
+                setStatusCardColor(cardStatus, report.getStatus());
+            }
+
+            // Location
+            if (txtLocation != null) {
+                if (report.getLocation() != null && !report.getLocation().isEmpty()) {
+                    txtLocation.setText("📍 " + report.getLocation());
+                } else if (report.getLatitude() != 0 && report.getLongitude() != 0) {
+                    String locationText = String.format(Locale.getDefault(),
+                            "📍 Lat: %.4f, Long: %.4f",
+                            report.getLatitude(), report.getLongitude());
+                    txtLocation.setText(locationText);
+                } else {
+                    txtLocation.setText("📍 Location not available");
+                }
+            }
+
+            // User Info
+            if (report.getUserName() != null && txtUserName != null) {
+                txtUserName.setText("Reported by: " + report.getUserName());
+            }
+            if (report.getUserRegNo() != null && txtUserRegNo != null) {
+                txtUserRegNo.setText("Reg No: " + report.getUserRegNo());
+            }
+
+            // Responder Info
+            if (report.getResponderName() != null && !report.getResponderName().isEmpty()) {
+                if (txtResponder != null) {
+                    txtResponder.setText("Responder: " + report.getResponderName());
+                    txtResponder.setVisibility(View.VISIBLE);
+                }
+            } else {
+                if (txtResponder != null) {
+                    txtResponder.setVisibility(View.GONE);
+                }
+            }
+
+            // Notes
+            if (report.getNotes() != null && !report.getNotes().isEmpty()) {
+                if (txtNotes != null) {
+                    txtNotes.setText("Medical Notes: " + report.getNotes());
+                    txtNotes.setVisibility(View.VISIBLE);
+                }
+            } else {
+                if (txtNotes != null) {
+                    txtNotes.setVisibility(View.GONE);
+                }
+            }
+
+            // Panic Alert
+            if (layoutPanicAlert != null) {
+                if (report.isPanicAlert()) {
+                    layoutPanicAlert.setVisibility(View.VISIBLE);
+                } else {
+                    layoutPanicAlert.setVisibility(View.GONE);
+                }
+            }
+
+            // Images
+            if (report.getImageUrls() != null && !report.getImageUrls().isEmpty()) {
+                displayImages(report.getImageUrls());
+            } else {
+                if (layoutImages != null) {
+                    layoutImages.setVisibility(View.GONE);
+                }
+            }
+
+            // Videos
+            if (report.getVideoUrls() != null && !report.getVideoUrls().isEmpty()) {
+                displayVideos(report.getVideoUrls());
+            } else {
+                if (layoutVideos != null) {
+                    layoutVideos.setVisibility(View.GONE);
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.e("ReportDetailActivity", "Error in displayReportDetails", e);
+            Toast.makeText(this, "Error displaying report: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -451,7 +502,6 @@ public class ReportDetailActivity extends AppCompatActivity {
     private void shareReport() {
         String shareText = "DKUT Medical Emergency Report:\n" +
                 "Type: " + txtEmergencyType.getText() + "\n" +
-                "Severity: " + txtSeverity.getText() + "\n" +
                 "Status: " + txtStatus.getText() + "\n" +
                 "Time: " + txtDateTime.getText() + "\n" +
                 "Location: " + txtLocation.getText();

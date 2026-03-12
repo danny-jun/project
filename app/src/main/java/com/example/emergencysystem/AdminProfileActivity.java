@@ -136,8 +136,12 @@ public class AdminProfileActivity extends AppCompatActivity {
                     try {
                         EmergencyReport report = snap.getValue(EmergencyReport.class);
                         if (report != null) {
+                            // Auto-categorize severity based on emergency type
+                            String categorizedSeverity = report.getAutoCategorizedSeverity();
+                            report.setSeverity(categorizedSeverity);
+                            
                             totalReports++;
-                            if ("Critical".equalsIgnoreCase(report.getSeverity())) {
+                            if ("Critical".equalsIgnoreCase(categorizedSeverity)) {
                                 criticalCount++;
                             }
                         }

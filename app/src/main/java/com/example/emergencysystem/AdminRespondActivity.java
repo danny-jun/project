@@ -108,6 +108,11 @@ public class AdminRespondActivity extends AppCompatActivity {
                     currentReport = snapshot.getValue(EmergencyReport.class);
                     if (currentReport != null) {
                         currentReport.setId(reportId);
+                        
+                        // Auto-categorize severity based on emergency type
+                        String categorizedSeverity = currentReport.getAutoCategorizedSeverity();
+                        currentReport.setSeverity(categorizedSeverity);
+                        
                         displayReportDetails();
                     }
                 } else {
